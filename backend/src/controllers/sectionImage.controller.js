@@ -3,8 +3,7 @@ const path = require('path');
 const { StatusCodes } = require('http-status-codes');
 const SectionImage = require('../models/sectionImage.model');
 
-const UPLOAD_DIR = path.resolve('src/uploads');
-
+const UPLOAD_DIR = path.resolve('uploads');
 const uploadSectionImage = async (req, res) => {
   try {
     const sections = ['sec_1', 'sec_2', 'sec_3'];
@@ -26,8 +25,6 @@ const uploadSectionImage = async (req, res) => {
       }
 
       const section = sections[i - 1];
-
-      // Check if section exists
       const existing = await SectionImage.findOne({ section });
       if (existing) {
         // Remove old image
@@ -40,7 +37,6 @@ const uploadSectionImage = async (req, res) => {
       } else {
         await SectionImage.create({ section, title, image: file.filename });
       }
-
       responseData[section] = { title, imageUrl: `/uploads/${file.filename}` };
     }
 

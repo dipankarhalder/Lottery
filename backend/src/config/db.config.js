@@ -1,8 +1,6 @@
-const dotenv = require('dotenv');
 const mongoose = require('mongoose');
 
-dotenv.config({ quiet: true });
-const databaseConnect = async () => {
+const dbConnect = async () => {
   try {
     const connect = await mongoose.connect(process.env.MONGOURI);
     console.log(`Database successfully connected on port : 27017.`);
@@ -14,11 +12,5 @@ const databaseConnect = async () => {
 };
 
 module.exports = {
-  PORT: process.env.PORT,
-  PLATFORM: process.env.PLATFORM,
-  JWTSECRET: process.env.JWTSECRET,
-  EXPTIME: process.env.EXPTIME,
-  NODEENV: process.env.NODEENV,
-  CLIENTURL: process.env.CLIENTURL,
-  dbConfig: databaseConnect,
+  dbConnect,
 };

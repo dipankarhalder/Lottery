@@ -1,7 +1,6 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const { JWTSECRET, EXPTIME } = require('../config');
 
 const saltNum = 10;
 const UserSchema = new mongoose.Schema(
@@ -47,8 +46,8 @@ UserSchema.methods.generateAuthToken = function () {
       userid: this._id,
       email: this.email,
     },
-    JWTSECRET,
-    { expiresIn: EXPTIME },
+    process.env.JWTSECRET,
+    { expiresIn: process.env.EXPTIME },
   );
 };
 

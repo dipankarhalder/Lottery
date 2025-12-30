@@ -1,11 +1,14 @@
+const dotenv = require('dotenv');
 const path = require('path');
 const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
 const cookieParser = require('cookie-parser');
 const { StatusCodes } = require('http-status-codes');
-const { PORT, CLIENTURL, PLATFORM, dbConfig } = require('./config');
+const { dbConnect } = require('./config/db.config');
 const { RootRouter } = require('./routes');
+
+dotenv.config({ quiet: true });
 
 /* initial express app */
 const app = express();
@@ -13,11 +16,11 @@ const app = express();
 /* CORS configuration */
 const corsOptions = {
   origin: function (origin, callback) {
-    // allow local dev and frontend
-    const allowedOrigins = [CLIENTURL, 'http://localhost:5173'];
+    const allowedOrigins = [process.env.CLIENTURL, 'http://localhost:5173', 'http://127.0.0.1:5173'];
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
+      console.log('Blocked CORS request from:', origin);
       callback(new Error('Not allowed by CORS'));
     }
   },
@@ -26,14 +29,14 @@ const corsOptions = {
 };
 
 /* all important middleware */
-app.use(morgan(PLATFORM));
+app.use(morgan(process.env.PLATFORM || 'development'));
 app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
 /** Serve static uploads directory */
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/uploads', express.static(path.resolve('uploads')));
 
 /* application main endpoint */
 app.use('/api', RootRouter);
@@ -55,10 +58,11 @@ app.use((error, req, res, next) => {
 });
 
 /* connect database and started server */
-dbConfig()
+dbConnect()
   .then(() => {
-    app.listen(PORT, () => {
-      console.log(`Server successfully started on port : ${PORT}`);
+    const port = process.env.PORT || 3000;
+    app.listen(port, () => {
+      console.log(`Server successfully started on port : ${port}`);
     });
   })
   .catch((err) => {

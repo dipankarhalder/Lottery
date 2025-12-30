@@ -1,7 +1,6 @@
 const Joi = require('joi');
 const { StatusCodes } = require('http-status-codes');
 const User = require('../models/user.model');
-const { NODEENV, EXPTIME } = require('../config');
 
 const sendErrorResponse = (res, error) => {
   return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
@@ -88,8 +87,8 @@ const userSignin = async (req, res) => {
     const token = user.generateAuthToken();
     res.cookie('authToken', token, {
       httpOnly: true,
-      secure: NODEENV === 'production',
-      maxAge: Number(EXPTIME),
+      secure: process.env.NODEENV === 'production',
+      maxAge: Number(process.env.EXPTIME),
       sameSite: 'Strict',
     });
     return res.status(StatusCodes.OK).json({
@@ -107,7 +106,7 @@ const userSignout = async (req, res) => {
   try {
     res.clearCookie('authToken', {
       httpOnly: true,
-      secure: NODEENV === 'production',
+      secure: process.env.NODEENV === 'production',
       sameSite: 'Strict',
     });
     return res.status(StatusCodes.OK).json({
