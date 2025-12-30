@@ -1,0 +1,27 @@
+const { StatusCodes } = require('http-status-codes');
+const jwt = require('jsonwebtoken');
+const { JWTSECRET } = require('../config');
+
+const verifyToken = (req, res, next) => {
+  const authHeader = req.headers['authorization'];
+
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res
+      .status(StatusCodes.UNAUTHORIZED)
+      .json({ status: StatusCodes.UNAUTHORIZED, message: 'Access denied. No token provided.' });
+  }
+
+  const token = authHeader.split(' ')[1];
+
+  try {
+    const decoded = jwt.verify(token, JWTSECRET);
+    req.user = decoded;
+    next();
+  } catch (err) {
+    return res
+      .status(StatusCodes.UNAUTHORIZED)
+      .json({ status: StatusCodes.UNAUTHORIZED, message: `Invalid or expired token. ${err}` });
+  }
+};
+
+module.exports = verifyToken;
